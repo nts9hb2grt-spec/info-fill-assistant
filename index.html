@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信息填充助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .file-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .file-card {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            transition: all 0.3s;
+        }
+        .file-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        .file-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-card .icon {
+            font-size: 24px;
+        }
+        .file-path {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #666;
+            word-break: break-all;
+            border: 1px solid #eee;
+            min-height: 50px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+        .preview-section {
+            margin-bottom: 30px;
+        }
+        .preview-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.8;
+            border: 1px solid #eee;
+        }
+        .preview-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .preview-box th, .preview-box td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 12px;
+        }
+        .preview-box th {
+            background: #667eea;
+            color: white;
+        }
+        .action-section {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        .btn-process {
+            padding: 15px 60px;
+            font-size: 18px;
+        }
+        .progress {
+            display: none;
+            margin-top: 20px;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #d4edda;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .result-section.success {
+            background: #d4edda;
+        }
+        .result-section.error {
+            background: #f8d7da;
+        }
+        .result-section h3 {
+            margin-bottom: 15px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .instructions {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .instructions h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .instructions ul {
+            color: #856404;
+            padding-left: 20px;
+            font-size: 13px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 信息填充助手</h1>
+            <p>关键词匹配 + 文档抽取 + Excel回填</p>
+        </div>
+
+        <div class="content">
+            <div class="instructions">
+                <h4>💡 使用说明</h4>
+                <ul>
+                    <li>选择Excel模板文件（第一列包含关键词/占位符）</li>
+                    <li>选择Word源文件（包含要提取的内容）</li>
+                    <li>点击"开始处理"按钮，系统将自动匹配并填充</li>
+                </ul>
+            </div>
+
+            <div class="file-section">
+                <div class="file-card">
+                    <h3><span class="icon">📊</span> Excel模板文件</h3>
+                    <div class="file-path" id="excelPath">请选择Excel文件...</div>
+                    <button class="btn btn-secondary" onclick="selectExcel()">📂 选择Excel文件</button>
+                    <button class="btn btn-primary" onclick="previewExcel()" style="margin-top: 10px;">👁 预览内容</button>
+                </div>
+                <div class="file-card">
+                    <h3><span class="icon">📄</span> Word源文件</h3>
+                    <div class="file-path" id="wordPath">请选择Word文件...</div>
+                    <button class="btn btn-secondary" onclick="selectWord()">📂 选择Word文件</button>
+                    <button class="btn btn-primary" onclick="previewWord()" style="margin-top: 10px;">👁 预览内容</button>
+                </div>
+            </div>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h3>📋 预览</h3>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('excel')">Excel内容</button>
+                    <button class="tab" onclick="switchTab('word')">Word内容</button>
+                </div>
+                <div class="tab-content active" id="excelPreview">
+                    <div class="preview-box" id="excelPreviewBox"></div>
+                </div>
+                <div class="tab-content" id="wordPreview">
+                    <div class="preview-box" id="wordPreviewBox"></div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button class="btn btn-primary btn-process" id="processBtn" onclick="processFiles()" disabled>
+                    🚀 开始处理
+                </button>
+                <div class="progress" id="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">处理中...</div>
+                </div>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <h3 id="resultTitle">✅ 处理完成!</h3>
+                <p id="resultMessage"></p>
+                <div class="stats" id="resultStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        let excelPath = '';
+        let wordPath = '';
+
+        function selectExcel() {
+            ipcRenderer.invoke('open-excel').then(path => {
+                if (path) {
+                    excelPath = path;
+                    document.getElementById('excelPath').textContent = path;
+                    checkReady();
+                }
+            });
+        }
+
+        function selectWord() {
+            ipcRenderer.invoke('open-word').then(path => {
+                if (path) {
+                    wordPath = path;
+                    document.getElementById('wordPath').textContent = path;
+                    checkReady();
+                }
+            });
+        }
+
+        function checkReady() {
+            document.getElementById('processBtn').disabled = !(excelPath && wordPath);
+        }
+
+        function previewExcel() {
+            if (!excelPath) return;
+            document.getElementById('previewSection').style.display = 'block';
+            switchTab('excel');
+            ipcRenderer.invoke('preview-excel', excelPath).then(result => {
+                if (result.success) {
+                    let html = '<table><tr><th>#</th><th>关键词(第1列)</th><th>当前内容(第2列)</th></tr>';
+                    result.data.forEach((row, i) => {
+                        html += `<tr><td>${i + 1}</td><td>${row[0] || ''}</td><td>${row[1] || ''}</td></tr>`;
+                    });
+                    html += '</table>';
+                    if (result.totalRows > 50) {
+                        html += `<p style="margin-top:10px;color:#666;">... 还有 ${result.totalRows - 50} 行</p>`;
+                    }
+                    document.getElementById('excelPreviewBox').innerHTML = html;
+                } else {
+                    document.getElementById('excelPreviewBox').innerHTML = '加载失败: ' + result.error;
+                }
+            });
+        }
+
+        function previewWord() {
+            if (!wordPath) return;
+            document.getElementById('previewSection').style.display = 'block';
+            switchTab('word');
+            ipcRenderer.invoke('preview-word', wordPath).then(result => {
+                if (result.success) {
+                    const text = result.text.replace(/\n/g, '<br>');
+                    document.getElementById('wordPreviewBox').innerHTML = text + (result.text.length >= 5000 ? '<p style="margin-top:10px;color:#666;">... 内容过长，已截断</p>' : '');
+                } else {
+                    document.getElementById('wordPreviewBox').innerHTML = '加载失败: ' + result.error;
+                }
+            });
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`${tab}Preview`).classList.add('active');
+        }
+
+        function processFiles() {
+            const btn = document.getElementById('processBtn');
+            const progress = document.getElementById('progress');
+            const resultSection = document.getElementById('resultSection');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ 处理中...';
+            progress.style.display = 'block';
+            resultSection.style.display = 'none';
+
+            // 模拟进度
+            let progressValue = 0;
+            const progressInterval = setInterval(() => {
+                progressValue = Math.min(progressValue + Math.random() * 15, 90);
+                document.getElementById('progressFill').style.width = progressValue + '%';
+                document.getElementById('progressText').textContent = `处理中... ${Math.round(progressValue)}%`;
+            }, 200);
+
+            ipcRenderer.invoke('process-files', { excelPath, wordPath }).then(result => {
+                clearInterval(progressInterval);
+                document.getElementById('progressFill').style.width = '100%';
+                document.getElementById('progressText').textContent = '完成!';
+
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = '🚀 开始处理';
+
+                    if (result.success) {
+                        resultSection.className = 'result-section success';
+                        document.getElementById('resultTitle').textContent = '✅ 处理完成!';
+                        document.getElementById('resultMessage').textContent = `输出文件: ${result.outputPath}`;
+                        document.getElementById('resultStats').innerHTML = `
+                            <div class="stat-item">
+                                <div class="stat-value">${result.totalCount}</div>
+                                <div class="stat-label">总关键词数</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${result.filledCount}</div>
+                                <div class="stat-label">成功匹配</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${result.totalCount - result.filledCount}</div>
+                                <div class="stat-label">未匹配</div>
+                            </div>
+                        `;
+                    } else {
+                        resultSection.className = 'result-section error';
+                        document.getElementById('resultTitle').textContent = '❌ 处理失败';
+                        document.getElementById('resultMessage').textContent = result.error;
+                        document.getElementById('resultStats').innerHTML = '';
+                    }
+                }, 500);
+            });
+        }
+    </script>
+</body>
+</html>
